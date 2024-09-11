@@ -15,7 +15,7 @@ Essentially it's equivalent to repeat draw 1 ball from urn1 1000 times, the ball
 
 probability = number of blue balls (sum all the draws+6\*number of the experiment(blue balls already in urn2 in each experiment))/number of all the balls in urn 2 (13number of the experiment)
 
-## Function version 1 
+## Function version 1
 
 ```{r}
 sol_v1 <- function(nreps=100000, b1=10, y1=8, b2=6, y2=6){

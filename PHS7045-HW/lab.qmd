@@ -119,7 +119,6 @@ myfun <- function(...){
 a<-1
 b<-2
 myfun(a,b)
-
 ```
 
 Knit the document, commit your changes, and push them to GitHub.
@@ -130,6 +129,15 @@ A concept we did not review was lazy evaluation. Write a function with
 two arguments (`a` and `b`) that only uses one of them as an integer,
 and then call the function passing the following arguments
 `(1, this_stuff)`
+
+```{r}
+myfun2 <- function(a,b){
+  as.integer(a)
+}
+myfun2(1,this_stuff)
+
+myfun2(1) #this also work! lazy evaluation 
+```
 
 Knit the document, commit your changes, and push them to GitHub.
 

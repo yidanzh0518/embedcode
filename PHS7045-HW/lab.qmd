@@ -146,6 +146,18 @@ Knit the document, commit your changes, and push them to GitHub.
 Write a function that fits a linear regression model and saves the
 result to the global environment using the `assign()` function. The name
 of the output must be passed as a symbol using lazy evaluation.
+```{r}
+myreg <- function(...,outputname){
+  fit <- lm(...)
+  assign(
+    deparse(substitute(outputname)),
+    fit,envir = .GlobalEnv #using the assignment function and output in the global environment
+  )
+  invisiable(NULL) # don't print anything on the screen 
+}
+
+#myreg <- lm(my~wt,data=data,outputname=mymodel)
+```
 
 Knit the document, commit your changes, and push them to GitHub.
 

@@ -175,7 +175,11 @@ Knit the document, commit your changes, and push them to GitHub.
 
 ```{r}
 #| eval: false
+library(data.table)
+#install.packages("R.utils")
+library(R.utils)
 # Download the data
+met <- fread("/Users/yidanzhang/Downloads/2024-Fall/PHS-7045 R/met_all.gz")
 stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
 stations[, USAF := as.integer(USAF)]
 
@@ -193,6 +197,9 @@ stations <- stations[!is.na(USAF)]
 # Removing duplicates
 stations[, n := 1:.N, by = .(USAF)]
 stations <- stations[n == 1,][, n := NULL]
+
+mergedata <- merge(stations,met,by.x="USAF",by.y ="USAFID",
+                               ,all.y = TRUE)
 ```
 
 3.  Merge the data as we did during the lecture.
@@ -203,6 +210,9 @@ What is the median station in terms of temperature, wind speed, and
 atmospheric pressure? Look for the three weather stations that best
 represent the continental US using the `quantile()` function. Do these
 three coincide?
+```{r}
+
+```
 
 Knit the document, commit your changes, and Save it on GitHub. Don’t
 forget to add `README.md` to the tree, the first time you render it.

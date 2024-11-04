@@ -1,0 +1,162 @@
+---
+title: "Homework 3"
+format: html
+editor: visual
+---
+
+## **Part 1: Vectorizing code**
+
+The following functions can be written to be more efficient without using parallel computing:
+
+1.  This function generates a `n x k` dataset with all its entries distributed Poisson with mean `lambda`.
+
+```{r}
+fun1 <- function(n = 100, k = 4, lambda = 4) {
+  x <- NULL
+  
+  for (i in 1:n)
+    x <- rbind(x, rpois(k, lambda))
+  
+  return(x)
+}
+
+
+fun1alt <- function(n = 100, k = 4, lambda = 4) {
+  matrix(unlist(lapply(1:n, function(i) rpois(k, lambda))), nrow = n, ncol = k, byrow = TRUE)
+}
+
+bench::mark(
+  fun1(),fun1alt(), relative = TRUE, check = FALSE
+)
+```
+
+2.  Like before, speed up the following functions (it is OK to use StackOverflow)
+
+```{r}
+# Total row sums
+fun1 <- function(mat) {
+  n <- nrow(mat)
+  ans <- double(n) 
+  for (i in 1:n) {
+    ans[i] <- sum(mat[i, ])
+  }
+  ans
+}
+
+fun1alt <- function(mat) {
+  # YOUR CODE HERE
+  ans <- rowSums(mat)
+  ans
+}
+
+# Cumulative sum by row
+fun2 <- function(mat) {
+  n <- nrow(mat)
+  k <- ncol(mat)
+  ans <- mat
+  for (i in 1:n) {
+    for (j in 2:k) {
+      ans[i,j] <- mat[i, j] + ans[i, j - 1]
+    }
+  }
+  ans
+}
+
+fun2alt <- function(mat) {
+  # YOUR CODE HERE
+  ans <- t(apply(mat,1,cumsum))
+  ans
+}
+
+# Use the data with this code
+set.seed(2315)
+dat <- matrix(rnorm(200 * 100), nrow = 200)
+
+# Test for the first
+bench::mark(
+  fun1(dat),
+  fun1alt(dat), relative = TRUE
+)
+
+# Test for the second
+bench::mark(
+  fun2(dat),
+  fun2alt(dat), relative = TRUE
+)
+
+```
+
+3.  Find the column max (hint: Check out the function `max.col()`).
+
+```{r}
+# Data Generating Process (10 x 10,000 matrix)
+set.seed(1234)
+x <- matrix(rnorm(1e4), nrow=10)
+
+# Find each column's max value
+fun2 <- function(x) {
+  apply(x, 2, max)
+}
+
+fun2alt <- function(x) {
+  # YOUR CODE HERE
+  x[cbind(max.col(t(x)),1:ncol(x))]
+}
+
+# Benchmarking
+bench::mark(
+  fun2(x),
+  fun2alt(x), relative = TRUE
+)
+```
+
+## **Part 2: C++**
+
+As we saw in the Rcpp week, vectorization may not be the best solution. For this part, you must write a function using Rcpp that implements the [scale-free algorithm](https://gvegayon.github.io/networks-udd2024/02-random-graphs.html#scale-free-networks). The following code implements this in R:
+
+```{r}
+## Model parameters
+n <- 500
+m <- 2
+
+## Generating the graph
+set.seed(3312)
+g <- matrix(0, nrow = n, ncol = n)
+g[1:m, 1:m] <- 1
+diag(g) <- 0
+
+## Adding nodes
+for (i in (m + 1):n) {
+
+  # Selecting the nodes to connect to
+  ids <- sample(
+    x       = 1:(i-1), # Up to i-1
+    size    = m,       # m nodes
+    replace = FALSE,   # No replacement
+    # Probability proportional to the degree
+    prob    = colSums(g[, 1:(i-1), drop = FALSE])
+    )
+
+  # Adding the edges
+  g[i, ids] <- 1
+  g[ids, i] <- 1
+
+}
+
+## Visualizing the degree distribution
+library(ggplot2)
+data.frame(degree = colSums(g)) |>
+  ggplot(aes(degree)) +
+  geom_histogram() +
+  scale_x_log10() +
+  labs(
+    x = "Degree\n(log10 scale)",
+    y = "Count"
+  )
+```
+
+Please see answer in the scale_free.cpp file.
+
+```{r}
+Rcpp::sourceCpp("~/PHS7045-HW/scale_free.cpp")
+```

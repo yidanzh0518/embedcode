@@ -29,6 +29,6 @@ This function calculates the Pointwise Mutual Information (PMI) score between pa
 }
 \examples{
 # Example usage
-pmi_results <- pmi_df((cooccur=cooccur_eicu,singletons = sg_eicu,my.smooth = 0.75)
+pmi_results <- pmi_df(cooccur=cooccur_eicu,singletons = sg_eicu,my.smooth = 0.75)
 
 }

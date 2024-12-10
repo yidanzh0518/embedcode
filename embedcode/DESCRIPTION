@@ -4,7 +4,7 @@ Version: 0.0.0.1000
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: A package for creating medical code embedding
+Description: A package for creating medical code embedding.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

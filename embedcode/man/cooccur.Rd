@@ -48,5 +48,6 @@ Calculate Co-occurrence Matrix for ICD Codes
 The function calculates a co-occurrence matrix for ICD codes, based on the time window for each patient's data. It supports parallel processing using the \code{slurmR} package with user provide high performance comouter account and partition.
 }
 \examples{
-cooccur(data = data, id = "id", code = "code", time = "time", window = 30, pll_njobs = 10, pll_mc.cores = 10, out_dir = "output", output_file = "final_cooccurrence_matrix.rds")
+example_data <- data("example_data")
+cooccur(data = example_data, id = "id", code = "code", time = "time", window = 30, output_file = "final_cooccurrence_matrix.rds")
 }

@@ -32,7 +32,7 @@ num_codes <- 1000
 ids <- sample(1:num_ids, num_ids, replace = FALSE)
 
 # Generate unique codes (formatted as xxx.xx)
-csv_path <- system.file("data", "phecode_icd9_map_unrolled.csv", package = "embedcode")
+csv_path <- system.file("data-example", "phecode_icd9_map_unrolled.csv", package = "embedcode")
 icd9list <- read.csv(csv_path)
 icd9code <- unique(icd9list$icd9)
 codes <- sample(icd9code, num_codes, replace = FALSE)

@@ -10,18 +10,24 @@
 #'   \item{marg_context}{A data frame with marginal counts for `code2` (renamed to `code`) and their associated counts (`marg_count`).}
 #'   \item{D}{The total sum of the `count` column across all rows in the input data frame.}
 #' }
-#'
 #' @examples
 #' # Example usage:
-#' result <- getsg(cooccur)
+#'
+#' # result <- getsg(cooccur)
 #'
 #' @export
-getsg <- function(cooccur){
-  marg_word = cooccur %>% group_by(code1) %>% summarise(marg=sum(count))
-  marg_context = cooccur %>% group_by(code2) %>% summarise(marg=sum(count))
-  names(marg_word) = c("code","marg_count")
-  names(marg_context) = c("code","marg_count")
-  D = sum(as.numeric(cooccur$count))
-  return(list(marg_word=marg_word,marg_context=marg_context,D=D))
+getsg <- function(cooccur) {
+  # Calculate marg_word using aggregate in base R
+  marg_word <- aggregate(count ~ code1, data = cooccur, FUN = sum)
+  names(marg_word) <- c("code", "marg_count")
+
+  # Calculate marg_context using aggregate in base R
+  marg_context <- aggregate(count ~ code2, data = cooccur, FUN = sum)
+  names(marg_context) <- c("code", "marg_count")
+
+  # Calculate D (the sum of the count column)
+  D <- sum(as.numeric(cooccur$count))
+
+  return(list(marg_word = marg_word, marg_context = marg_context, D = D))
 }
 

@@ -16,7 +16,7 @@
 #'
 #' @examples
 #' # Example usage
-#' pmi_results <- pmi_df(cooccur=cooccur_eicu,singletons = sg_eicu,my.smooth = 0.75)
+#' # pmi_results <- pmi_df(cooccur=cooccur_df,singletons = getsg,my.smooth = 0.75)
 #'
 #' @export
 pmi_df <- function(cooccur, singletons, my.smooth = 0.75) {

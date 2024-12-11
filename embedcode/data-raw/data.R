@@ -25,8 +25,8 @@ library(dplyr)
 set.seed(123)
 
 # Number of unique IDs and codes
-num_ids <- 10000
-num_codes <- 1000
+num_ids <- 2000
+num_codes <- 500
 
 # Generate unique IDs (1 to 10,000)
 ids <- sample(1:num_ids, num_ids, replace = FALSE)

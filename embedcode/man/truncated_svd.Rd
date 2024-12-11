@@ -44,12 +44,12 @@ any rows with empty vectors (those where the sum of absolute values is zero).
 \examples{
 # Example usage:
 
-result <- truncated_svd(matrix=pmi_matrix, dim_size = 500, iters = 100)
+# result <- truncated_svd(matrix=pmi_matrix, dim_size = 500, iters = 100)
 
 # Access the final embedded matrix
-embedding_matrix <- result$vecs
+# embedding_matrix <- result$vecs
 
 # Fit object:
-fit_result <- result$fit
+# fit_result <- result$fit
 
 }

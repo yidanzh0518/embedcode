@@ -22,6 +22,7 @@ This function calculates the marginal counts for two sets of codes (\code{code1}
 }
 \examples{
 # Example usage:
-result <- getsg(cooccur)
+
+# result <- getsg(cooccur)
 
 }

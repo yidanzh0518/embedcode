@@ -1,6 +1,6 @@
 #' Calculate Co-occurrence Matrix for medical codes on a high-performance computing (HPC) cluster
 #'
-#'This function computes a co-occurrence matrix for a dataset that containing medical codes, based on the time window for each patient's data.
+#' This function computes a co-occurrence matrix for a dataset that containing medical codes, based on the time window for each patient's data.
 #' It is optimized for high-performance computing (HPC) environments using the `slurmR` package.
 
 #' @details The function calculates a co-occurrence matrix for medical codes, based on the time window for each patient's data. It supports parallel processing using the `slurmR` package with user provide high performance comouter account and partition.
@@ -33,7 +33,7 @@
 #' # pll_njobs = 50,
 #' # pll_mc.cores = 40,
 #' # pll_sbatch_opt = list(account = "owner-guest", partition = "notchpeak-guest"),
-#' # out_dir = "~/results"
+#' # out_dir = "~/results",
 #' # output_file = "final_cooccurrence_matrix.rds")
 #' @export
 

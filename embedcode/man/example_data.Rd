@@ -5,7 +5,7 @@
 \alias{example_data}
 \title{Simulated ICD-9 Data for example purposes}
 \format{
-A data frame with 57,518 rows and 3 variables:
+A data frame with 11,506 rows and 3 variables:
 \describe{
 \item{id}{A unique identifier for each patient.}
 \item{code}{ICD-9 codes associated with the patient, in the format xxx.xx.}
@@ -21,7 +21,7 @@ example_data
 \description{
 A dataset containing ICD-9 codes and associated time data for
 10,000 unique patients. This dataset was generated for testing and example
-purposes. It contains 10,000 unique patient IDs, 1000 unique ICD-9 codes, and time sequences
+purposes. It contains 2,000 unique patient IDs, 500 unique ICD-9 codes, and time sequences
 for each patient's recorded event.
 }
 \keyword{datasets}

@@ -1,6 +1,6 @@
 #' Create Co-occurrence Data Frame from Matrix
 #'
-#' This function takes an input matrix (typically a sparse matrix) and returns a data frame representing the co-occurrences between pairs of items. Each pair consists of a row index and a column index (i.e., co-occurring pairs) with an associated count, representing the number of co-occurrences.
+#' This function takes an input co-occurrence matrix and returns a sparse matrix representing the co-occurrences between pairs of items. Each pair consists of a row index and a column index (i.e., co-occurring pairs) with an associated count, representing the number of co-occurrences.
 #'
 #' @param input_matrix A matrix (dense or sparse) where non-zero entries represent co-occurring pairs. The function will automatically convert the matrix to a sparse format for efficiency.
 #' @param threshold An optional numeric value to deal with rare code. If provided, the function filters out pairs with a count less than or equal to this threshold. The default is `NULL`, meaning no filtering is applied.
@@ -19,7 +19,7 @@
 #'
 #' @import Matrix
 #' @export
-create_cooccur_df <- function(input_matrix, threshold = NULL) {
+cooccur_pair <- function(input_matrix, threshold = NULL) {
   # Ensure the input is a dense matrix
   input_matrix <- as.matrix(input_matrix)
 

@@ -61,6 +61,6 @@ The function calculates a co-occurrence matrix for medical codes, based on the t
 # pll_njobs = 50,
 # pll_mc.cores = 40,
 # pll_sbatch_opt = list(account = "owner-guest", partition = "notchpeak-guest"),
-# out_dir = "~/results"
+# out_dir = "~/results",
 # output_file = "final_cooccurrence_matrix.rds")
 }

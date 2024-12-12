@@ -2,7 +2,7 @@
 
 export(cooccur_hpc)
 export(cooccur_local)
-export(create_cooccur_df)
+export(cooccur_pair)
 export(getsg)
 export(pmi_df)
 export(pmi_matrix)

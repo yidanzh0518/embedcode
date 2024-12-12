@@ -25,6 +25,6 @@ This function takes an input co-occurrence matrix and returns a sparse matrix re
 \examples{
 # Example usage:
 input_matrix <- matrix(c(0, 1, 2, 0, 3, 0, 4, 0), nrow = 4, ncol = 4)
-cooccur_df <- create_cooccur_df(input_matrix, threshold = 1)
+cooccur_df <- cooccur_pair(input_matrix, threshold = 1)
 
 }

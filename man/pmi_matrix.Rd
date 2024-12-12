@@ -12,7 +12,7 @@ pmi_matrix(pmi)
 Pointwise Mutual Information between those codes.}
 }
 \value{
-A sparse matrix of class \code{dgCMatrix} where the rows and columns correspond to the unique
+A symmetric matrix of class \code{dgCMatrix} where the rows and columns correspond to the unique
 codes in the input data, and the values represent the PMI between the corresponding codes.
 }
 \description{
@@ -21,7 +21,7 @@ based on input data, where each entry corresponds to the PMI between two codes (
 It filters out zero values and creates a symmetric matrix.
 }
 \details{
-The function uses the \code{Matrix} package to create the sparse matrix. It ensures that the matrix
+The function uses the \code{Matrix} package to convert the sparse matrix. It ensures that the matrix
 is symmetric by including both \verb{(i, j)} and \verb{(j, i)} pairs. Any PMI value of 0 is removed
 before creating the final matrix.
 }

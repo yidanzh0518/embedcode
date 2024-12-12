@@ -18,11 +18,11 @@ sppmi_matrix(pmi, k = 10)
 SPPMI values below 0 are replaced with 0.}
 }
 \value{
-A sparse matrix with the SPPMI values. The matrix has codes as both rows and columns, and the values represent the SPPMI between pairs of codes.
+A symmetric matrix with the SPPMI values. The matrix has codes as both rows and columns, and the values represent the SPPMI between pairs of codes.
 The matrix is symmetric, i.e., \code{sppmi[i,j]} is equal to \code{sppmi[j,i]}.
 }
 \description{
-This function calculates the Shifted Positive Pointwise Mutual Information (SPPMI) for each pair of codes and returns a sparse matrix representing the SPPMI values. The SPPMI is calculated by subtracting the logarithm of a smoothing constant \code{k} from the PMI values, and then applying a threshold to ensure non-negative values. The resulting matrix is symmetric, with codes as both rows and columns.
+This function calculates the Shifted Positive Pointwise Mutual Information (SPPMI) for each pair of codes and returns a symmetric matrix representing the SPPMI values. The SPPMI is calculated by subtracting the logarithm of a smoothing constant \code{k} from the PMI values, and then applying a threshold to ensure non-negative values. The resulting matrix is symmetric, with codes as both rows and columns.
 }
 \examples{
 # Example

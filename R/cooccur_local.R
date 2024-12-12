@@ -35,13 +35,6 @@
 
 cooccur_local <- function(data, id_col, time_col, code_col, window = NA) {
 
-  if (Sys.getenv("_R_CHECK_PACKAGE_NAME_") != "") {
-    plan(sequential)  # Use sequential during checks
-  } else {
-    plan(multisession)  # Default to parallel
-  }
-
-
   # Ensure data is a data.table
   setDT(data)
 
@@ -76,6 +69,8 @@ cooccur_local <- function(data, id_col, time_col, code_col, window = NA) {
 
   # Split data by patient
   patient_list <- split(data, by = id_col)
+
+  options(future.globals.maxSize = 1e9)
 
   # Use parallel processing for patient subsets
   plan(multisession)  # Start parallel processing

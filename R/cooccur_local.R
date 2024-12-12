@@ -38,36 +38,30 @@ cooccur_local <- function(data, id_col, time_col, code_col, window = NA) {
   # Ensure data is a data.table
   setDT(data)
 
-  # Get unique codes and initialize an empty co-occurrence matrix
+  # Get unique codes and initialize a shared co-occurrence matrix structure
   unique_codes <- unique(data[[code_col]])
   code_to_index <- setNames(seq_along(unique_codes), unique_codes)
-  empty_matrix <- matrix(0, nrow = length(unique_codes), ncol = length(unique_codes))
-  rownames(empty_matrix) <- unique_codes
-  colnames(empty_matrix) <- unique_codes
+  n_codes <- length(unique_codes)
+  rownames <- unique_codes
+  colnames <- unique_codes
 
-  # Function to process a single patient
+  # Function to process a single patient's data
   process_patient <- function(patient_data) {
-    # Ensure patient_data is a data.table
     patient_data <- as.data.table(patient_data)
-
-    # Sort data by the time column
     patient_data <- patient_data[order(get(time_col))]
 
-    # Skip patients with fewer than 2 observations
-    if (nrow(patient_data) < 2) return(empty_matrix)
+    if (nrow(patient_data) < 2) return(matrix(0, n_codes, n_codes))
 
-    # Initialize local co-occurrence matrix
-    local_matrix <- empty_matrix
-
-    # Loop through patient data
+    local_matrix <- matrix(0, n_codes, n_codes)
     for (i in seq_len(nrow(patient_data) - 1)) {
       for (j in (i + 1):nrow(patient_data)) {
-        # Stop if outside the time window
         if (!is.na(window) && (patient_data[[time_col]][j] - patient_data[[time_col]][i]) > window) break
         code_i <- patient_data[[code_col]][i]
         code_j <- patient_data[[code_col]][j]
-        local_matrix[code_to_index[[code_i]], code_to_index[[code_j]]] <- local_matrix[code_to_index[[code_i]], code_to_index[[code_j]]] + 1
-        local_matrix[code_to_index[[code_j]], code_to_index[[code_i]]] <- local_matrix[code_to_index[[code_j]], code_to_index[[code_i]]] + 1
+        index_i <- code_to_index[[code_i]]
+        index_j <- code_to_index[[code_j]]
+        local_matrix[index_i, index_j] <- local_matrix[index_i, index_j] + 1
+        local_matrix[index_j, index_i] <- local_matrix[index_j, index_i] + 1
       }
     }
     return(local_matrix)
@@ -76,13 +70,15 @@ cooccur_local <- function(data, id_col, time_col, code_col, window = NA) {
   # Split data by patient
   patient_list <- split(data, by = id_col)
 
-  # Parallel processing
-  plan(multisession)
+  # Use parallel processing for patient subsets
+  plan(multisession)  # Start parallel processing
   results <- future_lapply(patient_list, process_patient)
-  plan(sequential)  # Reset to sequential after parallel computation
+  plan(sequential)    # Reset to sequential after processing
 
-  # Combine results
+  # Combine the results from all patients
   final_matrix <- Reduce("+", results)
+  rownames(final_matrix) <- unique_codes
+  colnames(final_matrix) <- unique_codes
 
   return(final_matrix)
 }

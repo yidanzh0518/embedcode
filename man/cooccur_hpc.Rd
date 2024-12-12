@@ -56,7 +56,7 @@ The function calculates a co-occurrence matrix for medical codes, based on the t
 }
 \examples{
 #data("example_data")
-# cooccur(data = data, id = "id",
+# cooccur_hpc(data = data, id = "id",
 # code = "code", time = "time", window = NA,
 # pll_njobs = 50,
 # pll_mc.cores = 40,

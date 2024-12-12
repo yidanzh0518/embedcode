@@ -8,10 +8,10 @@
 #'            `code1` and `code2` represent the codes (words) being compared, and `PMI` is the
 #'            Pointwise Mutual Information between those codes.
 #'
-#' @return A sparse matrix of class `dgCMatrix` where the rows and columns correspond to the unique
+#' @return A symmetric matrix of class `dgCMatrix` where the rows and columns correspond to the unique
 #'         codes in the input data, and the values represent the PMI between the corresponding codes.
 #'
-#' @details The function uses the `Matrix` package to create the sparse matrix. It ensures that the matrix
+#' @details The function uses the `Matrix` package to convert the sparse matrix. It ensures that the matrix
 #'          is symmetric by including both `(i, j)` and `(j, i)` pairs. Any PMI value of 0 is removed
 #'          before creating the final matrix.
 #'

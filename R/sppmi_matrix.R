@@ -1,6 +1,6 @@
 #' Create a Sparse SPPMI Matrix
 #'
-#' This function calculates the Shifted Positive Pointwise Mutual Information (SPPMI) for each pair of codes and returns a sparse matrix representing the SPPMI values. The SPPMI is calculated by subtracting the logarithm of a smoothing constant `k` from the PMI values, and then applying a threshold to ensure non-negative values. The resulting matrix is symmetric, with codes as both rows and columns.
+#' This function calculates the Shifted Positive Pointwise Mutual Information (SPPMI) for each pair of codes and returns a symmetric matrix representing the SPPMI values. The SPPMI is calculated by subtracting the logarithm of a smoothing constant `k` from the PMI values, and then applying a threshold to ensure non-negative values. The resulting matrix is symmetric, with codes as both rows and columns.
 #'
 #' @param pmi A data frame containing the PMI values for code pairs. The data frame should have the following columns:
 #'   - `code1`: The first code in the pair.
@@ -9,7 +9,7 @@
 #' @param k A numeric value for the smoothing constant. Default is 10. The SPPMI is calculated as `PMI - log(k)` for each pair of codes.
 #'        SPPMI values below 0 are replaced with 0.
 #'
-#' @return A sparse matrix with the SPPMI values. The matrix has codes as both rows and columns, and the values represent the SPPMI between pairs of codes.
+#' @return A symmetric matrix with the SPPMI values. The matrix has codes as both rows and columns, and the values represent the SPPMI between pairs of codes.
 #'         The matrix is symmetric, i.e., `sppmi[i,j]` is equal to `sppmi[j,i]`.
 #'
 #' @examples

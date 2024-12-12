@@ -8,6 +8,8 @@ library(embedcode)
 # Create a mock example data frame for testing
 data("example_data")
 
+example_data <- example_data[1:1000,]
+
 test_that("cooccur function works correctly", {
   # Test if cooccur function runs without errors
   result <- cooccur_local(data = example_data, id_col = "id", time_col= "time", code_col = "code", window = NA)

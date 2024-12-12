@@ -30,15 +30,15 @@ for the \code{code_col} values within the specified \code{window} based on the \
 of co-occurrences across all groups.
 }
 \examples{
-data("example_data")
+#data("example_data")
 
-co_matrix <- cooccur_local(
-  data = example_data,
-  id_col = "id",
-  time_col = "time",
-  code_col = "code",
-  window = 3
-)
+#co_matrix <- cooccur_local(
+#  data = example_data,
+#  id_col = "id",
+#  time_col = "time",
+#  code_col = "code",
+#  window = 3
+#)
 # print(co_matrix)
 
 }

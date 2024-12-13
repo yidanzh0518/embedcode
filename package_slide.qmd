@@ -1,0 +1,156 @@
+---
+title: "Medical Code Embedding"
+subtitle: "install.packages('embedcode')"
+author: "Yidan Zhang"
+date: "Dec-12-2024"
+format:
+  revealjs:
+    footer: "Yidan Zhang github@yidanzhang0518"
+    slide-number: true
+---
+
+## Problem Review {.incremental}
+
+![EHR Data](Downloads/EHR.jpg)
+
+::: notes
+The EHR system is a centralized platform that integrates diverse sources of health-related data. While doctor notes are typically preserved as free text, the majority of other data is encoded using standardized medical codes. For example, lab tests and radiology procedures are recorded using CPT codes, medications are tracked with the National Drug Code (NDC) system, and diagnoses are documented using ICD codes
+:::
+
+## Problem Review {.smaller}
+
+![EHR Data](Downloads/EHR.jpg) Imagine conducting an analysis to predict health outcome $Y$ in the population using an EHR dataset.
+
+The outcome is influenced by various underlying conditions, modeled as: $Y∼Age+Gender+Race+I(ICD9Code=250.0)+I(ICD9Code=428.0)+$ $I(CPTCode=5569)+···$
+
+::: notes
+including demographic information,whether a patient has diabetes, whether they ever experienced heart failure or went through kidney transplant procedure. There are likely many additional health conditions that the model must account for beyond those listed here. A key assumption for the model, however, is that all these adjusted variables are independent of one another which is rarely true in practice.
+
+The aim of this project is to create a package that translates these discrete medical codes into continuous embedding vectors enclosing their mutual relationship.
+:::
+
+
+## Interim Milestone
+
+-   **Key Funtions**:
+    -   Co-occurrence matrix function
+    -   Marginal and joint count calculation function
+    -   PMI (Pointwise Mutual Information) matrix computation function
+
+::: notes
+some key functions have been built when i last shared the progress in midterm presentation. including build up these major functions
+:::
+
+## New Features
+
+![Package working flowchart](Downloads/flow.jpg){width="2500"}
+
+::: notes
+For the second half semester I have extended the project into this 8 functions, and the package will allow users to follow the step of creating....
+:::
+
+## New Features
+
+![My laptop gave up 😭](Downloads/rdown.jpg){width="452"}
+
+::: notes
+the motivation of the first new feature is that although the function I previously had is optimized using data.table and vectorization,it is still not efficient enough to handle large dataset, which is essential for EHR analysis, the system will unfortunately crash when i test on real data.
+:::
+
+## New Features {.smaller}
+
+-   **Improve Efficiency** - Parallel processing for co-occurrence matrix computation
+-   cooccur_hpc for high performance computing featuring slurmR package
+
+```{r}
+#| code-line-numbers: true  # Shows line numbers
+#| eval: false  # Displays code without running
+#| echo: true   # Shows the code
+
+cooccur(data = data, id = "id",
+        code = "code", time = "time", window = NA,
+        pll_njobs = 50,pll_mc.cores = 40,
+        pll_sbatch_opt = list(account = "owner-guest", partition = "notchpeak-guest"),
+        out_dir = "~/results",
+        output_file = "final_cooccurrence_matrix.rds")
+```
+
+![No more system crashing!🎉 🥳](Downloads/slurm.jpg)
+
+::: notes
+ So I have implemented parallel processing for co-occurrence matrix computation to improve efficiency. the cooccur_hpc function features slurmR package, which allows users to submit jobs to the cluster and run the computation in parallel on hpc.
+:::
+
+## New Features {.smaller}
+
+-   **Improve Efficiency**
+    -   Parallel processing for co-occurrence matrix computation
+    -   cooccur_local () for local machine computing, adapting future package to different computing environments
+    -   🤝 to mac and windows
+
+::: notes
+I also include another function cooccur_local to achieve the parallel processing on local machine adpatting future package, which is friendly to both mac and windows users.
+:::
+## New Features {.smaller}
+
+-   **User friendly**
+    -   cooccur_hpc() can define and create the output directory if it does not exist to better allocate result.
+    -   cooccur_pair() can define a threshold to disregard low frequency co-occurrence pairs (noise) for the downstream analysis.
+    -   sppmi_matrix() for traditional word embedding also included.
+    -   truncate_svd() can remove zero-information vectors, with an option to reserve full SVD.
+    -   example_data for testing and demonstration.
+
+::: notes
+another major feature is that I think the functions are really user friendly,  
+
+cooccurence pairs which exhibit as noise 
+
+since all public avialable ehr datasets still have some confidential restrictions, the package also include a simulated example dataset for testing and demonstration with 2000 unique patients and 500 unique icd9 codes.
+:::
+## Example
+
+```{r}
+#| echo: true   # Shows the code
+
+library(embedcode)
+head(example_data)
+cooccur <- cooccur_local(data = example_data, id = "id",
+                         code = "code", time = "time", window = NA)
+head(cooccur[,1:6],6)
+```
+
+::: notes
+let's go through how the package works using the example dataset, first we use the cooccur_local function to compute the co-occurrence matrix, here is the display of the partial matrix, where each entry is the count of co-occurrence for code pairs.
+:::
+
+## Example
+
+```{r}
+#| echo: true   # Shows the code
+#| warning: false  # Suppresses warnings
+cooccur_pair <- cooccur_pair(cooccur)
+sg <- getsg(cooccur_pair)
+pmi_df <- pmi_df(cooccur_pair,singletons = sg,my.smooth = 0.75)
+pmi_matrix <- pmi_matrix(pmi_df)
+embed <- truncated_svd(pmi_matrix, dim_size = 100,iters = 100)
+```
+
+```{r}
+#| echo: false   
+#| warning: false  # Suppresses warnings
+embed<- embed$vecs
+original_codes <- rownames(cooccur)
+rownames(embed) <- original_codes[as.numeric(rownames(embed))]
+```
+
+```{r}
+#| echo: true   # Shows the code
+#| warning: false  # Suppresses warnings
+
+head(embed[,1:6],6)
+```
+
+::: notes
+following this, we generate a sparse co-occurrence matrix using the cooccur_pair function, obtaining the marginal counts for individual codes and joint counts for code pairs. These values are then used to calculate the PMI in the next step, then we obtain pmi matrix  where the rows and columns represent codes, and each entry indicates the PMI value for the corresponding code pair. Finally, we use truncated_svd function to compute the embedding vectors, where each row corresponds to a code and each column corresponds to a dimension of the embedding space.
+:::
+# Thank You

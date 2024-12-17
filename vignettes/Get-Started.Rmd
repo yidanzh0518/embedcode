@@ -1,0 +1,163 @@
+---
+title: "User's guide for the `embedcode` package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{User's guide for the `embedcode` package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+The `embedcode` package provides a framework for embedding medical codes extracted from Electronic Health Records (EHR). These embeddings are designed to represent medical codes, such as ICD (International Classification of Diseases) codes, CPT (Current Procedural Terminology) codes, and procedure codes, as dense vectors. The resulting embeddings capture underlying patterns and correlations between codes, enabling improved performance in downstream machine learning tasks.
+
+The embedding process is built on:
+- **Co-occurrence Matrices**: Capturing code-to-code interactions across patient records.
+- **PMI and SPPMI**: Statistical methods to measure the association strength between codes.
+- **Truncated SVD**: A dimensionality reduction technique to create compact vector representations.
+
+This package is inspired by the GloVe (Global Vectors for Word Representation) algorithm, adapted to analyze the global co-occurrence patterns of medical codes in the dataset.
+
+In this vignette, we demonstrate the workflow using a simulated EHR dataset, covering the entire pipeline from co-occurrence matrix construction to generating embeddings.
+---
+
+## Example Workflow
+
+### Step 1: Load Example Data
+
+The package includes a simulated EHR dataset for demonstration.
+
+```{r setup}
+library(embedcode)
+# Load the example dataset
+data("example_data")
+
+# Display the structure of the dataset
+head(example_data)
+```
+
+### Step 2: Construct Co-occurrence Matrix
+This function computes a co-occurrence matrix for a dataset that containing medical codes, based on the time window for each patient's data.It uses parallel processing to speed up computation and can be used in either windows or linux operating systems. 
+
+The function splits the data by `id_col`, processes each group in parallel, and computes the co-occurrences for the `code_col` values within the specified `window` based on the `time_col`. The final matrix is the sum of co-occurrences across all groups.
+
+```{r}
+# Compute the co-occurrence matrix
+co_matrix <- cooccur_local(
+  data = example_data,
+  id_col = "id",
+  time_col = "time",
+  code_col = "code",
+  window = 2
+)
+
+# View the resulting co-occurrence matrix
+head(co_matrix[,1:6],6)
+
+```
+
+### Step 3: Generate sparse Co-occurrence matrix
+This function takes an input co-occurrence matrix and returns a sparse matrix representing the co-occurrences between pairs of items. Each pair consists of a row index and a column index (i.e., co-occurring pairs) with an associated count, representing the number of co-occurrences.
+One of the argument in this function is the threshold, which is an optional numeric value to deal with rare code. If provided, the function filters out pairs with a count less than or equal to this threshold. The default is `NULL`, meaning no filtering is applied.
+```{r}
+# Extract code pairs
+cooccur_df <- cooccur_pair(co_matrix, threshold = NULL)
+
+# View the resulting data frame
+head(cooccur_df,6)
+
+```
+
+### Step 4: Compute Marginal Counts for Code Pairs
+This function calculates the marginal counts for two sets of codes (`code1` and `code2`) based on a co-occurrence data frame. It returns the marginal sums for both sets of codes along with the total sum of counts in the dataset.
+```{r}
+# Compute marginal counts for code and joint count for code pairs
+sg <- getsg(cooccur_df)
+
+# View the resulting data frame
+# head(sg,6)
+```
+
+### Step 5: Compute PMI value
+This function computes the Pointwise Mutual Information (PMI) score between pairs of codes using their co-occurrence counts and marginal counts. The PMI score quantifies the association between two codes by adjusting for their individual frequencies in the dataset. The output is a data frame that includes detailed information for each code pair: the first and second codes in the pair (code1 and code2), the co-occurrence count (joint_count), the marginal counts for each code (W for code1 and C for code2), and the calculated PMI score.
+
+```{r}
+# Calculate PMI values
+pmi_data <- pmi_df(
+  cooccur = cooccur_df,
+  singletons = sg,
+  my.smooth = 0.75
+)
+
+# View the PMI data frame
+head(pmi_data,6)
+```
+
+### Step 6: Convert PMI to sparse matrix format
+This function generates a sparse matrix representation of a Pointwise Mutual Information (PMI) matrix based on input data, where each entry corresponds to the PMI between two codes (words). It filters out zero values and creates a symmetric matrix. The function uses the `Matrix` package to convert the sparse matrix. It ensures that the matrix is symmetric by including both `(i, j)` and `(j, i)` pairs. Any PMI value of 0 is removed before creating the final matrix.
+
+```{r}
+# Generate SPPMI matrix
+pmi_matrix <- pmi_matrix(pmi_data)
+
+# Display the resulting matrix
+head(pmi_matrix[,1:6],6)
+```
+
+### Step 7: Generate Embeddings
+This function performs a truncated Singular Value Decomposition (SVD) on the given PMI/SPPMI matrix using the Iterative Randomized SVD (IRLBA) method. It returns the resulting truncated SVD vectors along with the fitted model.
+You can choose to add a summation of the right singular vectors and remove empty vectors based on the input options.
+
+The function uses the `irlba` function from the `irlba` package to compute the truncated SVD. The number of dimensions to retain is controlled by the `dim_size` parameter. If the `use_sum` parameter is set to TRUE, it will add the right singular vectors to the left singular vectors before returning the result. The `remove_empty` flag allows you to remove any rows with empty vectors (those where the sum of absolute values is zero).
+
+```{r}
+# Generate embedding vectors
+embeddings <- truncated_svd(
+  matrix = pmi_matrix,
+  dim_size = 100,
+  iters = 50,
+  remove_empty = TRUE
+)
+
+# Access the embedding matrix
+embedding_matrix <- embeddings$vecs
+
+original_codes <- rownames(co_matrix)
+rownames(embedding_matrix) <- original_codes[as.numeric(rownames(embedding_matrix))]
+# View the first few embedding vectors
+head(embedding_matrix[,1:6],6)
+```
+
+### Other functions
+
+## Co-occurrence matrix for large dataset
+This function computes a co-occurrence matrix for a dataset that containing medical codes, based on the time window for each patient's data. It is optimized for high-performance computing (HPC) environments using the `slurmR` package. This function is designed for HPC environments using the `slurmR` package for job scheduling. It splits the data by `id`, processes each subset in parallel across multiple Slurm jobs, and computes co-occurrences for the `code` values within the specified `window`.
+The final matrix is the sum of co-occurrences across all subsets.
+
+```{r}
+# Example 
+
+# cooccur_hpc(data = data, id = "id",
+# code = "code", time = "time", window = NA,
+# pll_njobs = 20,
+# pll_mc.cores = 10,
+# pll_sbatch_opt = list(account = "owner-guest", partition = "notchpeak-guest"),
+# out_dir = "~/results",
+# output_file = "final_cooccurrence_matrix.rds")
+```
+
+## Use SPPMI matrix instead of PMI matrix (prefer for word embedding)
+This function generates a symmetric matrix representation of a Shifted Positive Pointwise Mutual Information (SPPMI) matrix based on input data, where each entry corresponds to the SPPMI between two codes (words). It filters out zero values and creates a symmetric matrix. The function uses the `Matrix` package to convert the sparse matrix. It ensures that the matrix is symmetric by including both `(i, j)` and `(j, i)` pairs. Any SPPMI value of 0 is removed before creating the final matrix. The result of this function can then be used to generate embeddings using the `truncated_svd` function.
+
+```{r}
+# Generate SPPMI matrix
+sppmi_matrix <- sppmi_matrix(pmi_data)
+```
+
